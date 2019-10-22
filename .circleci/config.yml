@@ -45,7 +45,7 @@ workflows:
             tags:
               only: /.*/
       - build_push:
-          name: "build_push:alpine"
+          name: "build_push:scratch"
           context: dockerhub-login
           requires:
             - build
@@ -55,10 +55,10 @@ workflows:
             tags:
               only: /^[0-9]+\.[0-9]+\.[0-9]+$/
       - build_push:
-          name: "build_push:scratch"
+          name: "build_push:alpine"
           context: dockerhub-login
-          dockerfile: Dockerfile.scratch
-          dockertagprefix: scratch-
+          dockerfile: Dockerfile.alpine
+          dockertagprefix: alpine-
           requires:
             - build
           filters:
