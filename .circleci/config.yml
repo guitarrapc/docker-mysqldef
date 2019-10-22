@@ -13,18 +13,25 @@ jobs:
       - checkout
       - setup_remote_docker:
           version: 17.09.0-ce
-      - run:
-          command: docker build --build-arg VCS_REF=$(git rev-parse --short HEAD) -t ${OWNER}/${IMAGE_NAME}:latest .
+      - run: docker build --build-arg VCS_REF=$(git rev-parse --short HEAD) -t ${OWNER}/${IMAGE_NAME}:latest .
+      - run: docker build --build-arg VCS_REF=$(git rev-parse --short HEAD) -t ${OWNER}/${IMAGE_NAME}:scratch -f Dockerfile.scratch .
   build_push:
     executor: default
+    parameters:
+      dockerfile:
+        type: string
+        default: "Dockerfile"
+      dockertagprefix:
+        type: string
+        default: ""
     steps:
       - checkout
       - setup_remote_docker:
           version: 17.09.0-ce
       - run:
-          command: docker build --build-arg VCS_REF=$(git rev-parse --short HEAD) -t ${OWNER}/${IMAGE_NAME}:latest .
+          command: docker build --build-arg VCS_REF=$(git rev-parse --short HEAD) -t ${OWNER}/${IMAGE_NAME}:<< parameters.dockertagprefix >>latest -f << parameters.dockerfile >> .
       - run:
-          command: docker tag ${OWNER}/${IMAGE_NAME}:latest ${OWNER}/${IMAGE_NAME}:$CIRCLE_TAG
+          command: docker tag ${OWNER}/${IMAGE_NAME}:latest ${OWNER}/${IMAGE_NAME}:<< parameters.dockertagprefix >>$CIRCLE_TAG
       - run:
           command: docker login -u ${DOCKER_USER} -p ${DOCKER_PASS}
       - run:
@@ -37,7 +44,19 @@ workflows:
             tags:
               only: /.*/
       - build_push:
+          name: "build_push:alpine"
           context: dockerhub-login
+          required: build
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /^[0-9]+\.[0-9]+\.[0-9]+$/
+      - build_push:
+          name: "build_push:scratch"
+          context: dockerhub-login
+          dockerfile: Dockerfile.scratch
+          dockertagprefix: scratch-
           required: build
           filters:
             branches:
