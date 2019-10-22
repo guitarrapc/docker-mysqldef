@@ -14,7 +14,7 @@ jobs:
       - setup_remote_docker:
           version: 17.09.0-ce
       - run: docker build --build-arg VCS_REF=$(git rev-parse --short HEAD) -t ${OWNER}/${IMAGE_NAME}:latest .
-      - run: docker build --build-arg VCS_REF=$(git rev-parse --short HEAD) -t ${OWNER}/${IMAGE_NAME}:scratch -f Dockerfile.scratch .
+      - run: docker build --build-arg VCS_REF=$(git rev-parse --short HEAD) -t ${OWNER}/${IMAGE_NAME}:alpine -f Dockerfile.alpine .
       - run: docker build --build-arg VCS_REF=$(git rev-parse --short HEAD) -t ${OWNER}/${IMAGE_NAME}:ubuntu -f Dockerfile.ubuntu .
   build_push:
     executor: default
