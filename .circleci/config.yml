@@ -46,7 +46,8 @@ workflows:
       - build_push:
           name: "build_push:alpine"
           context: dockerhub-login
-          required: build
+          requires:
+            - build
           filters:
             branches:
               ignore: /.*/
@@ -57,7 +58,8 @@ workflows:
           context: dockerhub-login
           dockerfile: Dockerfile.scratch
           dockertagprefix: scratch-
-          required: build
+          requires:
+            - build
           filters:
             branches:
               ignore: /.*/
